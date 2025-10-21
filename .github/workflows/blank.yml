@@ -12,6 +12,10 @@ jobs:
   scan-with-dastardly:
     name: Run Dastardly Security Scan
     runs-on: ubuntu-latest
+
+    permissions:
+      checks: write # To uprawnienie pozwala na publikację raportu
+      contents: read # Standardowe uprawnienie
     
     steps:
       # Krok 1: Właściwe skanowanie
