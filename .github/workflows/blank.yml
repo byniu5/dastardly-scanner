@@ -1,81 +1,34 @@
-name: Build site, deploy to Azure, scan with Dastardly
+name: Scan specific site with Dastardly and Publish Report
 
 on:
+  # Uruchomienie na push do gałęzi main
   push:
     branches:
       - main
+  # Uruchomienie ręczne z interfejsu GitHub Actions
   workflow_dispatch:
 
 jobs:
-  build-and-test:
-    name: Build and test
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-          dotnet-quality: 'ga'
-
-      - name: Build with dotnet
-        run: dotnet build -c Release
-
-      - name: Test with dotnet
-        run: dotnet test -c Release
-
-      - name: dotnet publish
-        run: dotnet publish VulnerableSite -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
-
-  deploy-to-azure:
-    name: Deploy to Azure
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    environment:
-      name: 'Production'
-      # Używa URL-a z kolejnego kroku deploymentu
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: .net-app
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'vulnerable-site'
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4080FF02C6844229A0E0EB0ED16426F0 }}
-          package: .
-
   scan-with-dastardly:
-    name: Scan with Dastardly
+    name: Run Dastardly Security Scan
     runs-on: ubuntu-latest
-    # Wymagane, aby upewnić się, że deployment się zakończył, choć skanujemy zewnętrzny URL
-    needs: deploy-to-azure 
-
+    
     steps:
-      - name: Run Dastardly Scan
+      # Krok 1: Właściwe skanowanie 🕵️‍♀️
+      - name: Run Dastardly Scan on Target URL
         uses: PortSwigger/dastardly-github-action@main
         with:
-          # WAŻNE: ZMIEŃ TEN ADRES NA KONKRETNĄ STRONĘ, KTÓRĄ CHCESZ SKANOWAĆ
-          target-url: 'https://wsb.edu.pl/' 
-
+          # WAŻNE: W tym miejscu musisz podać dokładny adres URL do skanowania
+          target-url: 'https://wsb.edu.pl/' 👈 Zmień ten link
+        
+      # Krok 2: Publikacja raportu 📄
+      # Zawsze uruchamiane, nawet jeśli skanowanie Dastardly zawiedzie, 
+      # aby upewnić się, że raport jest dostępny.
       - name: Publish Dastardly Scan Report
         if: always()
         uses: mikepenz/action-junit-report@v4
         with:
           check_name: 'Dastardly Scan Report'
-          report_paths: '**/dastardly-report.xml'
+          # Ścieżka do raportu generowanego przez Dastardly
+          report_paths: '**/dastardly-report.xml' 
           require_tests: true
