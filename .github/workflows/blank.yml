@@ -41,6 +41,7 @@ jobs:
     needs: build-and-test
     environment:
       name: 'Production'
+      # Używa URL-a z kolejnego kroku deploymentu
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
@@ -61,18 +62,15 @@ jobs:
   scan-with-dastardly:
     name: Scan with Dastardly
     runs-on: ubuntu-latest
-    # Zmieniono 'needs: deploy-to-azure' na 'needs: []',
-    # ponieważ skanujemy zewnętrzny URL, a nie wdrożoną aplikację.
-    # Jeśli jednak to, co chcesz skanować, to rzeczywiście strona
-    # wdrożona w poprzednim jobie, pozostaw `needs: deploy-to-azure`.
-    needs: deploy-to-azure # Pozostawiamy to, jeśli po prostu zmieniasz URL skanowania.
+    # Wymagane, aby upewnić się, że deployment się zakończył, choć skanujemy zewnętrzny URL
+    needs: deploy-to-azure 
 
     steps:
       - name: Run Dastardly Scan
         uses: PortSwigger/dastardly-github-action@main
         with:
-          # WAŻNA ZMIANA: Podaj konkretny, docelowy URL do skanowania
-          target-url: 'https://wsb.edu.pl/' 👈 **Zmień to na Twój link**
+          # WAŻNE: ZMIEŃ TEN ADRES NA KONKRETNĄ STRONĘ, KTÓRĄ CHCESZ SKANOWAĆ
+          target-url: 'https://wsb.edu.pl/' 
 
       - name: Publish Dastardly Scan Report
         if: always()
