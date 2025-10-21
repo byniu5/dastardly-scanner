@@ -14,21 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Krok 1: Właściwe skanowanie 🕵️‍♀️
+      # Krok 1: Właściwe skanowanie
       - name: Run Dastardly Scan on Target URL
         uses: PortSwigger/dastardly-github-action@main
         with:
-          # WAŻNE: W tym miejscu musisz podać dokładny adres URL do skanowania
-          target-url: 'https://wsb.edu.pl/' 👈 Zmień ten link
+          # WAŻNE: ZMIEŃ ADRES NA TEN, KTÓRY CHCESZ SKANOWAĆ
+          target-url: 'https://wsb.edu.pl/' 
         
-      # Krok 2: Publikacja raportu 📄
-      # Zawsze uruchamiane, nawet jeśli skanowanie Dastardly zawiedzie, 
-      # aby upewnić się, że raport jest dostępny.
+      # Krok 2: Publikacja raportu 
       - name: Publish Dastardly Scan Report
         if: always()
         uses: mikepenz/action-junit-report@v4
         with:
           check_name: 'Dastardly Scan Report'
-          # Ścieżka do raportu generowanego przez Dastardly
           report_paths: '**/dastardly-report.xml' 
           require_tests: true
