@@ -23,7 +23,7 @@ jobs:
         uses: PortSwigger/dastardly-github-action@main
         with:
           # WAŻNE: ZMIEŃ ADRES NA TEN, KTÓRY CHCESZ SKANOWAĆ
-          target-url: 'https://www.cia.gov/' 
+          target-url: 'https://www.otomoto.pl/' 
         
       # Krok 2: Publikacja raportu 
       - name: Publish Dastardly Scan Report
