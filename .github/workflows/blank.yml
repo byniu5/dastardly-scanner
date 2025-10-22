@@ -23,7 +23,7 @@ jobs:
         uses: PortSwigger/dastardly-github-action@main
         with:
           # WAŻNE: ZMIEŃ ADRES NA TEN, KTÓRY CHCESZ SKANOWAĆ
-          target-url: 'https://pizzeria-fresco.pl/' 
+          target-url: 'https://wsb.edu.pl/' 
         
       # Krok 2: Publikacja raportu 
       - name: Publish Dastardly Scan Report
